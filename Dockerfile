@@ -1,9 +1,10 @@
 ARG REPO_URL=https://github.com/ollama/ollama
 ARG TAG=v0.7.0
+ARG OLLAMA_REGISTRY_URL=https://registry.ollama.ai
 
 FROM alpine:3 AS build
-ARG REPO_URL=https://github.com/ollama/ollama
-ARG TAG=v0.7.0
+ARG REPO_URL
+ARG TAG
 RUN apk update && apk add --no-cache \
     git curl tar gzip build-base musl-dev \
     && rm -rf /var/cache/apk/*
@@ -17,6 +18,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
   go build -ldflags="-extldflags=-static" -trimpath -buildmode=pie -o /bin/ollama .
 
 FROM alpine:3
+ARG OLLAMA_REGISTRY_URL
 COPY --from=build /bin/ollama /bin/ollama
 ENV OLLAMA_HOST=0.0.0.0:11434
 EXPOSE 11434
