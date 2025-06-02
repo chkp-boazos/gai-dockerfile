@@ -2,6 +2,12 @@ ARG REPO_URL=https://github.com/ollama/ollama
 ARG TAG=v0.7.0
 ARG OLLAMA_REGISTRY_URL=https://registry.ollama.ai
 
+FROM --platform=linux/amd64 golang:1.22-alpine AS build
+RUN apk add --no-cache build-base musl-dev
+WORKDIR /app
+RUN git clone --branch=${TAG} ${REPO_URL} /opt/ollama
+RUN go build -ldflags="-extldflags=-static" -trimpath -buildmode=pie -o /bin/ollama .
+
 FROM alpine:3 AS build
 ARG REPO_URL
 ARG TAG
